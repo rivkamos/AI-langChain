@@ -36,7 +36,7 @@ def main():
     # צעד 4: compile. כאן נבדקים חיבורי הגרף, ורק אחריו אפשר להריץ
     graph = builder.compile()
 
-    result = graph.invoke({"question": "What is LangGraph, in one sentence?"})
+    result = graph.invoke({"question": "מהו LangGraph? ענה במשפט אחד."})
     print("ה-State שחזר מהגרף:")
     print(result)
 

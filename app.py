@@ -38,7 +38,7 @@ SLIDES = [
 SLIDE_BY_NUM = {s[0]: s for s in SLIDES}
 
 # שקפים שקוראים input(): ברירת מחדל ל-stdin
-STDIN_DEFAULTS = {16: "yes", 17: "approve", 19: "yes"}
+STDIN_DEFAULTS = {16: "yes", 19: "yes"}
 # שקף 18: ארגומנט אופציונלי (ריק = מריצים הכול)
 SLIDE18_ARGS = {"הכול": None, "chain": "chain", "agent": "agent", "graph": "graph"}
 

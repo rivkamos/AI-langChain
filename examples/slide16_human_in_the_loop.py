@@ -25,7 +25,7 @@ class State(TypedDict):
 
 
 def write_draft(state: State) -> dict:
-    draft = llm.invoke(f"Write a 2-sentence email to a customer about: {state['topic']}").content
+    draft = llm.invoke(f"כתוב מייל קצר של שני משפטים ללקוח בנושא: {state['topic']}").content
     return {"draft": draft}
 
 
@@ -68,7 +68,7 @@ def main():
 
     # הרצה ראשונה: נעצרת ב-interrupt
     result = graph.invoke(
-        {"topic": "a delay in their order", "draft": "", "approved": False, "status": ""}, config
+        {"topic": "עיכוב בהזמנה שלו", "draft": "", "approved": False, "status": ""}, config
     )
     payload = result["__interrupt__"][0].value
     print("\nהגרף עצר ומחכה לאדם.")

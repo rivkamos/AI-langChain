@@ -1,75 +1,62 @@
-"""שקף 14: ענפים ולולאות - הלב של סוכן.
+"""שקף 14: ענפים ולולאות.
 
-agent (מודל) -> route: האם ביקש כלי? כן -> tools -> חזרה ל-agent. לא -> END.
+הדוגמה הכי פשוטה, בלי כלים ובלי סוכנים:
+Node אחד כותב משפט, ופונקציית ניתוב (route) בודקת בקוד רגיל אם הוא ארוך מדי.
+ארוך מדי -> חוזרים לכתוב שוב (לולאה). קצר מספיק -> END (ענף יציאה).
 """
 import os
-from typing import Annotated, TypedDict
+from typing import TypedDict
 
 from dotenv import load_dotenv
-from langchain_core.messages import AnyMessage, HumanMessage
-from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph
-from langgraph.graph.message import add_messages
-from langgraph.prebuilt import ToolNode
 
 load_dotenv()
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+llm = ChatOpenAI(model=MODEL, temperature=0)
 
-
-@tool
-def get_weather(city: str) -> str:
-    """מחזיר מזג אוויר (מדומה) בעיר."""
-    fake = {"paris": "18C, cloudy", "tel aviv": "27C, sunny", "london": "14C, rainy"}
-    return fake.get(city.lower(), "20C, clear")
-
-
-@tool
-def multiply(a: float, b: float) -> float:
-    """מכפיל שני מספרים."""
-    return a * b
-
-
-tools = [get_weather, multiply]
-llm_with_tools = ChatOpenAI(model=MODEL, temperature=0).bind_tools(tools)
+MAX_WORDS = 8
+MAX_ATTEMPTS = 3
 
 
 class State(TypedDict):
-    messages: Annotated[list[AnyMessage], add_messages]
+    topic: str
+    sentence: str
+    attempts: int
 
 
 # Node שקורא למודל
-def agent(state: State) -> dict:
-    return {"messages": [llm_with_tools.invoke(state["messages"])]}
+def write(state: State) -> dict:
+    attempts = state["attempts"] + 1
+    if attempts == 1:
+        prompt = f"כתוב משפט אחד מפורט על {state['topic']}."
+    else:
+        prompt = f"כתוב משפט אחד על {state['topic']}, באורך של עד {MAX_WORDS} מילים."
+
+    sentence = llm.invoke(prompt).content.strip()
+    print(f"[write] ניסיון {attempts}: {len(sentence.split())} מילים -> {sentence}")
+    return {"sentence": sentence, "attempts": attempts}
 
 
-# פונקציית ניתוב: האם המודל ביקש להפעיל כלי?
+# פונקציית ניתוב: בודקת בקוד רגיל (בלי מודל) לאן ממשיכים
 def route(state: State) -> str:
-    last = state["messages"][-1]
-    return "tools" if last.tool_calls else "end"
+    too_long = len(state["sentence"].split()) > MAX_WORDS
+    if too_long and state["attempts"] < MAX_ATTEMPTS:
+        return "again"  # לולאה: חוזרים ל-write
+    return "done"       # יוצאים
 
 
 def main():
     builder = StateGraph(State)
-    builder.add_node("agent", agent)
-    builder.add_node("tools", ToolNode(tools))
+    builder.add_node("write", write)
 
-    builder.add_edge(START, "agent")
-    builder.add_conditional_edges("agent", route, {"tools": "tools", "end": END})  # ענף
-    builder.add_edge("tools", "agent")  # סוגר את הלולאה
+    builder.add_edge(START, "write")
+    builder.add_conditional_edges("write", route, {"again": "write", "done": END})
     graph = builder.compile()
 
-    question = "What's the weather in Paris, and what is 12.5 times 8?"
-    print("שאלה:", question, "\n")
-
-    # stream מראה כל צעד בלולאה: agent -> tools -> agent
-    for step in graph.stream({"messages": [HumanMessage(content=question)]}, stream_mode="updates"):
-        for node, update in step.items():
-            msg = update["messages"][-1]
-            if getattr(msg, "tool_calls", None):
-                print(f"[{node}] מבקש כלים:", [(c["name"], c["args"]) for c in msg.tool_calls])
-            else:
-                print(f"[{node}] {msg.content}")
+    result = graph.invoke({"topic": "חתולים", "sentence": "", "attempts": 0})
+    print(f"\nסיימנו אחרי {result['attempts']} ניסיונות.")
+    print("המשפט הסופי:", result["sentence"])
 
 
 if __name__ == "__main__":

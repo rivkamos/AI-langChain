@@ -18,28 +18,27 @@ llm = ChatOpenAI(model=MODEL, temperature=0)
 parser = StrOutputParser()
 
 TEXT = (
-    "LangGraph is a low-level orchestration framework for building stateful agents. "
-    "It models workflows as graphs of nodes and edges, supports persistence through "
-    "checkpointers, and lets a human approve actions in the middle of a run."
+    "LangGraph הוא כלי לבניית תהליכים עם זיכרון. "
+    "הוא מתאר תהליך כגרף של צמתים וחיצים, שומר את המצב בין הרצות, "
+    "ומאפשר לאדם לאשר פעולה באמצע ההרצה."
 )
 
-summary_chain = ChatPromptTemplate.from_template("Summarize in one sentence:\n{text}") | llm | parser
-keywords_chain = ChatPromptTemplate.from_template("Extract 4 keywords, comma separated:\n{text}") | llm | parser
+summary_chain = ChatPromptTemplate.from_template("סכם במשפט אחד:\n{text}") | llm | parser
+keywords_chain = ChatPromptTemplate.from_template("חלץ 4 מילות מפתח, מופרדות בפסיקים:\n{text}") | llm | parser
 
 
 def main():
     # RunnableSequence מפורש. זה בדיוק מה שה-pipe בונה מאחורי הקלעים
     sequence = RunnableSequence(
-        ChatPromptTemplate.from_template("Translate to French: {text}"), llm, parser
+        ChatPromptTemplate.from_template("תרגם לצרפתית: {text}"), llm, parser
     )
     print("--- RunnableSequence ---")
-    print(sequence.invoke({"text": "Good morning"}))
+    print(sequence.invoke({"text": "בוקר טוב"}))
 
     # RunnableParallel מפורש: שני Chains על אותו קלט, תוצאה כמילון
     parallel = RunnableParallel(summary=summary_chain, keywords=keywords_chain)
     print("\n--- RunnableParallel ---")
-    result = parallel.invoke({"text": TEXT})
-    print(result)
+    print(parallel.invoke({"text": TEXT}))
 
     # קיצור: בתוך ביטוי LCEL, מילון הופך אוטומטית ל-RunnableParallel,
     # ופונקציה רגילה הופכת ל-RunnableLambda.

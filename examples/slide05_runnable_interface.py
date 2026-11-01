@@ -11,30 +11,30 @@ load_dotenv()
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 llm = ChatOpenAI(model=MODEL, temperature=0)
-prompt = ChatPromptTemplate.from_template("Tell me a one-line fun fact about {topic}.")
+prompt = ChatPromptTemplate.from_template("ספר עובדה מעניינת במשפט אחד על {topic}.")
 chain = prompt | llm | StrOutputParser()
 
 
 def sync_methods():
     print("--- invoke: קלט אחד, פלט אחד ---")
-    print(chain.invoke({"topic": "octopuses"}))
+    print(chain.invoke({"topic": "תמנונים"}))
 
     print("\n--- stream: הפלט מגיע בהדרגה ---")
-    for chunk in chain.stream({"topic": "the moon"}):
+    for chunk in chain.stream({"topic": "הירח"}):
         print(chunk, end="", flush=True)
     print()
 
     print("\n--- batch: כמה קלטים במקביל ---")
-    results = chain.batch([{"topic": "bees"}, {"topic": "volcanoes"}, {"topic": "coffee"}])
+    results = chain.batch([{"topic": "דבורים"}, {"topic": "הרי געש"}, {"topic": "קפה"}])
     for r in results:
         print("*", r)
 
 
 async def async_methods():
     print("\n--- ainvoke / abatch / astream ---")
-    print(await chain.ainvoke({"topic": "penguins"}))
-    print(await chain.abatch([{"topic": "tea"}, {"topic": "chess"}]))
-    async for chunk in chain.astream({"topic": "Mars"}):
+    print(await chain.ainvoke({"topic": "פינגווינים"}))
+    print(await chain.abatch([{"topic": "תה"}, {"topic": "שחמט"}]))
+    async for chunk in chain.astream({"topic": "מאדים"}):
         print(chunk, end="", flush=True)
     print()
 
@@ -43,13 +43,13 @@ def retry_and_fallbacks():
     # retry: אם הקריאה נכשלת, מנסים שוב (עד 3 פעמים)
     robust_llm = llm.with_retry(stop_after_attempt=3)
     print("\n--- with_retry ---")
-    print(robust_llm.invoke("Say hi in one word.").content)
+    print(robust_llm.invoke("אמור שלום במילה אחת.").content)
 
     # fallbacks: מודל עם שם לא קיים ייכשל, ואז עוברים למודל התקין
     broken_llm = ChatOpenAI(model="this-model-does-not-exist")
     safe_llm = broken_llm.with_fallbacks([llm])
     print("\n--- with_fallbacks ---")
-    print(safe_llm.invoke("Say hi in one word.").content)
+    print(safe_llm.invoke("אמור שלום במילה אחת.").content)
 
 
 def main():

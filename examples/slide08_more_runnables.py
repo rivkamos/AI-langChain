@@ -42,21 +42,21 @@ def assign_demo():
 
 def branch_demo():
     print("\n--- RunnableBranch: ניתוב לפי תנאי ---")
-    question_chain = ChatPromptTemplate.from_template("Answer briefly: {text}") | llm | parser
-    statement_chain = ChatPromptTemplate.from_template("React in one friendly sentence: {text}") | llm | parser
+    question_chain = ChatPromptTemplate.from_template("ענה בקצרה: {text}") | llm | parser
+    statement_chain = ChatPromptTemplate.from_template("הגב במשפט ידידותי אחד: {text}") | llm | parser
     branch = RunnableBranch(
         (lambda x: x["text"].strip().endswith("?"), question_chain),
         statement_chain,  # ברירת מחדל
     )
-    print(branch.invoke({"text": "What is the capital of Italy?"}))
-    print(branch.invoke({"text": "I just finished my first LangChain app."}))
+    print(branch.invoke({"text": "מהי בירת איטליה?"}))
+    print(branch.invoke({"text": "סיימתי את האפליקציה הראשונה שלי ב-LangChain."}))
 
 
 def fallbacks_and_retry_demo():
     print("\n--- with_fallbacks + with_retry ---")
     broken = ChatOpenAI(model="this-model-does-not-exist")
     safe = broken.with_fallbacks([llm.with_retry(stop_after_attempt=3)])
-    print(safe.invoke("Say 'ok' and nothing else.").content)
+    print(safe.invoke("אמור 'בסדר' ותו לא.").content)
 
 
 def main():

@@ -48,10 +48,10 @@ def demo_conditional_edges():
         return "quick" if len(state["question"]) < 30 else "detailed"
 
     def quick(state: RouteState) -> dict:
-        return {"answer": "[quick] " + llm.invoke(state["question"] + " (answer in 5 words)").content}
+        return {"answer": "[קצר] " + llm.invoke(state["question"] + " (ענה ב-5 מילים)").content}
 
     def detailed(state: RouteState) -> dict:
-        return {"answer": "[detailed] " + llm.invoke(state["question"] + " (answer in 2 sentences)").content}
+        return {"answer": "[מפורט] " + llm.invoke(state["question"] + " (ענה ב-2 משפטים)").content}
 
     builder = StateGraph(RouteState)
     builder.add_node("quick", quick)
@@ -61,8 +61,8 @@ def demo_conditional_edges():
     builder.add_edge("detailed", END)
     graph = builder.compile()
 
-    print(graph.invoke({"question": "Capital of Spain?"})["answer"])
-    print(graph.invoke({"question": "Why is the sky blue during the day but red at sunset?"})["answer"])
+    print(graph.invoke({"question": "מהי בירת ספרד?"})["answer"])
+    print(graph.invoke({"question": "למה השמיים כחולים ביום ואדומים בשקיעה?"})["answer"])
 
 
 # ---------- 3. Send: Map-Reduce ----------
@@ -83,14 +83,14 @@ def demo_send():
         return [Send("make_joke", {"topic": t}) for t in state["topics"]]
 
     def make_joke(state: JokeState) -> dict:
-        joke = llm.invoke(f"Tell a very short joke about {state['topic']}.").content
+        joke = llm.invoke(f"ספר בדיחה קצרה מאוד על {state['topic']}.").content
         return {"jokes": [f"{state['topic']}: {joke}"]}
 
     builder = StateGraph(OverallState)
     builder.add_node("make_joke", make_joke)
     builder.add_conditional_edges(START, fan_out, ["make_joke"])
     builder.add_edge("make_joke", END)
-    result = builder.compile().invoke({"topics": ["cats", "python", "coffee"], "jokes": []})
+    result = builder.compile().invoke({"topics": ["חתולים", "פייתון", "קפה"], "jokes": []})
     for j in result["jokes"]:
         print("*", j)
 
@@ -106,7 +106,7 @@ def demo_command():
     print("\n=== 4. Command (עדכון + ניתוב) ===")
 
     def classify(state: MoodState) -> Command[Literal["happy", "sad"]]:
-        mood = "happy" if "great" in state["text"].lower() else "sad"
+        mood = "happy" if "מצוין" in state["text"] else "sad"
         # גם מעדכן את ה-State וגם קובע לאן ממשיכים, בלי Edge מותנה
         return Command(update={"mood": mood}, goto=mood)
 
@@ -125,7 +125,7 @@ def demo_command():
     builder.add_edge("sad", END)
     graph = builder.compile()
 
-    for text in ["The day was great", "I had a rough day"]:
+    for text in ["היום היה מצוין", "היה לי יום קשה"]:
         r = graph.invoke({"text": text})
         print(f"{text!r} -> mood={r['mood']}, reply={r['reply']}")
 

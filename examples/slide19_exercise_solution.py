@@ -25,10 +25,10 @@ MIN_RESULTS = 3  # כמה ממצאים צריך לפני שעוברים לתשו
 
 # "מנוע חיפוש" מדומה. מי שמסיים מהר יכול להחליף אותו בכלי אמיתי
 FAKE_WEB = [
-    "LangGraph models workflows as graphs of nodes and edges.",
-    "A Checkpointer saves the graph state after every step, per thread_id.",
-    "interrupt() pauses a graph and Command(resume=...) continues it.",
-    "Reducers define how node updates are merged into the state.",
+    "LangGraph מתאר תהליך כגרף של צמתים (Nodes) וחיצים (Edges).",
+    "ה-Checkpointer שומר את מצב הגרף אחרי כל צעד, לפי thread_id.",
+    "הפונקציה interrupt עוצרת את הגרף, ו-Command(resume=...) ממשיך אותו.",
+    "ה-Reducers קובעים איך עדכוני ה-Nodes משתלבים ב-State.",
 ]
 
 
@@ -40,7 +40,7 @@ class State(TypedDict):
 
 
 def plan(state: State) -> dict:
-    text = llm.invoke(f"Write a 2-step research plan for the question: {state['question']}").content
+    text = llm.invoke(f"כתוב תוכנית מחקר בשני שלבים לשאלה: {state['question']}").content
     print("[plan] התוכנית נוצרה")
     return {"plan": text}
 
@@ -66,7 +66,7 @@ def answer(state: State) -> dict:
         return {"answer": "(המשתמש ביטל לפני הפקת התשובה)"}
     sources = "\n".join(f"- {r}" for r in state["results"])
     text = llm.invoke(
-        f"Answer the question using only these findings.\nQuestion: {state['question']}\nFindings:\n{sources}"
+        f"ענה על השאלה בעזרת הממצאים בלבד.\nשאלה: {state['question']}\nממצאים:\n{sources}"
     ).content
     return {"answer": text}
 
@@ -85,7 +85,7 @@ def main():
     config = {"configurable": {"thread_id": "research-1"}}
 
     result = graph.invoke(
-        {"question": "How does LangGraph save and resume work?", "plan": "", "results": [], "answer": ""},
+        {"question": "איך השמירה והחידוש ב-LangGraph עובדים?", "plan": "", "results": [], "answer": ""},
         config,
     )
 

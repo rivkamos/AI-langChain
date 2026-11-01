@@ -22,15 +22,15 @@ parser = StrOutputParser()
 # --- Chains של LCEL (רכיבים רגילים) ---
 write_chain = (
     ChatPromptTemplate.from_template(
-        "Write a tagline (max 8 words) for: {product}.\nPrevious feedback (may be empty): {feedback}"
+        "כתוב סלוגן קצר עבור: {product}.\nמשוב על הניסיון הקודם (יכול להיות ריק): {feedback}"
     )
     | llm
     | parser
 )
 review_chain = (
     ChatPromptTemplate.from_template(
-        "Review this tagline: '{tagline}'. If it is at most 6 words, reply exactly 'OK'. "
-        "Otherwise reply with one short sentence of feedback."
+        "בדוק את הסלוגן: '{tagline}'. אם הוא באורך של עד 6 מילים, השב בדיוק 'OK'. "
+        "אחרת, השב במשפט קצר אחד של משוב."
     )
     | llm
     | parser
@@ -63,7 +63,7 @@ def route(state: State) -> str:
 
 def main():
     print("--- חלק א: Chain קבוע ---")
-    print(write_chain.invoke({"product": "a smart water bottle", "feedback": ""}))
+    print(write_chain.invoke({"product": "בקבוק מים חכם", "feedback": ""}))
 
     print("\n--- חלק ב: אותו Chain בתוך גרף עם לולאה ---")
     builder = StateGraph(State)
@@ -74,7 +74,7 @@ def main():
     builder.add_conditional_edges("review", route, {"again": "write", "done": END})
     graph = builder.compile()
 
-    final = graph.invoke({"product": "a smart water bottle", "tagline": "", "feedback": "", "rounds": 0})
+    final = graph.invoke({"product": "בקבוק מים חכם", "tagline": "", "feedback": "", "rounds": 0})
     print("סיבובים:", final["rounds"])
     print("תוצאה:", final["tagline"])
     print("ביקורת אחרונה:", final["feedback"])

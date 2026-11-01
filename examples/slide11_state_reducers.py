@@ -19,13 +19,11 @@ llm = ChatOpenAI(model=MODEL, temperature=0)
 
 # State בלי Reducer: ערך חדש דורס את הישן
 class StateNoReducer(TypedDict):
-    question: str
     messages: list[AnyMessage]
 
 
 # State עם Reducer: ההודעות החדשות מתווספות לרשימה
 class StateWithReducer(TypedDict):
-    question: str
     messages: Annotated[list[AnyMessage], add_messages]
 
 
@@ -51,10 +49,7 @@ def show(title: str, result: dict):
 
 
 def main():
-    initial = {
-        "question": "What is a reducer?",
-        "messages": [HumanMessage(content="In one sentence, what is a reducer in LangGraph?")],
-    }
+    initial = {"messages": [HumanMessage(content="במשפט אחד, מהו Reducer ב-LangGraph?")]}
 
     show("בלי Reducer (דריסה)", build(StateNoReducer).invoke(initial))
     show("עם add_messages (הוספה)", build(StateWithReducer).invoke(initial))

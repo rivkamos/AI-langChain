@@ -28,7 +28,7 @@ streamlit run app.py             # ב-Windows: py -m streamlit run app.py
 ```
 
 בסרגל הצד בוחרים שקף, רואים את הקוד, ולוחצים על Execute. הקבצים רצים בתהליך נפרד והפלט מוצג בדף.
-בשקפים 16, 17 ו-19 יש תיבה להזנת קלט המקלדת (stdin), ובשקף 18 בוחרים את הארגומנט (`chain`, `agent`, `graph`).
+בשקפים 16 ו-19 יש תיבה להזנת קלט המקלדת (stdin), ובשקף 18 בוחרים את הארגומנט (`chain`, `agent`, `graph`).
 
 ## מפת השקפים והקבצים
 
@@ -36,7 +36,7 @@ streamlit run app.py             # ב-Windows: py -m streamlit run app.py
 |---|---|---|---|
 | 1 | כותרת | - | אין קוד |
 | 2 | מה נלמד היום | - | אין קוד |
-| 3 | מפת הכלים | `slide03_tool_map.py` | `create_agent` ושהוא גרף של LangGraph. הערה על LangSmith |
+| 3 | מפת הכלים | `slide03_tool_map.py` | אותה משימה ב-Chain של LangChain ובגרף של LangGraph. הערה על LangSmith |
 | 4 | אבני הבניין | `slide04_building_blocks.py` | Prompt, Model ו-Parser, כל אחד לבד |
 | 5 | ממשק Runnable | `slide05_runnable_interface.py` | invoke, stream, batch, גרסאות async, retry, fallbacks |
 | 6 | LCEL | `slide06_lcel.py` | `prompt \| model \| parser` ואותו Chain ב-invoke, stream ו-batch |
@@ -47,18 +47,19 @@ streamlit run app.py             # ב-Windows: py -m streamlit run app.py
 | 11 | State ו-Reducers | `slide11_state_reducers.py` | השוואה: בלי Reducer ועם `add_messages` |
 | 12 | גרף ראשון | `slide12_first_graph.py` | ארבעת הצעדים, ו-State שחוזר מ-`invoke` |
 | 13 | סוגי מעבר | `slide13_edge_types.py` | `add_edge`, `add_conditional_edges`, `Send`, `Command` |
-| 14 | ענפים ולולאות | `slide14_branches_loops.py` | סוכן עם כלים: agent, route, tools וחזרה |
-| 15 | Persistence | `slide15_persistence.py` | `thread_id` זהה מול חדש, ו-Store בין שיחות |
+| 14 | ענפים ולולאות | `slide14_branches_loops.py` | Node שכותב משפט, ו-`route` שבודק אורך וחוזר לולאה עד שהוא קצר מספיק |
+| 15 | Persistence | `slide15_persistence.py` | `thread_id` זהה מול חדש, ו-Store (שמירה וקריאה) |
 | 16 | Human-in-the-loop | `slide16_human_in_the_loop.py` | `interrupt` ו-`Command(resume=...)`, ה-Node רץ שוב |
-| 17 | סוכנים בהתאמה אישית | `slide17_custom_agents.py` | `create_agent` עם `HumanInTheLoopMiddleware` |
-| 18 | מה לבחור ומתי | `slide18_what_to_choose.py` | `chain`, `agent` או `graph` לפי ארגומנט |
+| 17 | סוכנים בהתאמה אישית | `slide17_custom_agents.py` | `create_agent` הפשוט ביותר (בלי כלים), עם זיכרון דרך `thread_id` |
+| 18 | מה לבחור ומתי | `slide18_what_to_choose.py` | `chain`, `agent` או `graph` לפי ארגומנט, כל אחד בגרסה הפשוטה ביותר |
 | 19 | תרגיל מסכם | `slide19_exercise_solution.py` | פתרון לדוגמה: plan, search, answer עם לולאה, שמירה ואישור |
 | 20 | מה לקחנו | - | אין קוד |
 | 21 | מקורות | - | אין קוד |
 
 ## הערות למרצה
 
-- שקפים 16, 17 ו-19 מבקשים קלט מהמקלדת (אישור) באמצע ההרצה.
+- הדוגמאות פשוטות בכוונה: בלי כלים (tools), ובלי Middleware. כל ההודעות למודל כתובות בעברית.
+- שקפים 16 ו-19 מבקשים קלט מהמקלדת (אישור) באמצע ההרצה.
 - שקף 5 ושקף 8 כוללים בכוונה מודל עם שם לא קיים כדי להראות `with_fallbacks` בפעולה.
 - שקף 19 הוא פתרון התרגיל. כדאי לא לחלק אותו לפני שהסטודנטיות סיימו.
 - ה-API של LangChain ושל LangGraph מתעדכן. אם משהו נשבר אחרי עדכון גרסה, בודקים בתיעוד הרשמי.

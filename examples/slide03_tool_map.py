@@ -1,45 +1,53 @@
 """שקף 3: מפת הכלים - LangChain, LangGraph ו-LangSmith.
 
-מראה ש-create_agent של LangChain הוא בעצם גרף של LangGraph שרץ מתחת.
+אותה משימה פעמיים:
+1. ב-LangChain: Chain (אבני בניין מחוברות).
+2. ב-LangGraph: גרף עם Node אחד שמריץ את אותו Chain.
+LangGraph רץ מתחת ל-LangChain, והם עובדים ביחד.
 """
 import os
+from typing import TypedDict
 
 from dotenv import load_dotenv
-from langchain.agents import create_agent
-from langchain_core.tools import tool
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from langgraph.graph import END, START, StateGraph
 
 load_dotenv()
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
+# --- LangChain: אבני הבניין ---
+prompt = ChatPromptTemplate.from_template("הסבר במשפט אחד מהו {topic}.")
+llm = ChatOpenAI(model=MODEL, temperature=0)
+chain = prompt | llm | StrOutputParser()
 
-@tool
-def word_length(word: str) -> int:
-    """מחזיר את מספר האותיות במילה."""
-    return len(word)
+
+# --- LangGraph: גרף עם Node אחד ---
+class State(TypedDict):
+    topic: str
+    answer: str
+
+
+def explain(state: State) -> dict:
+    return {"answer": chain.invoke({"topic": state["topic"]})}
 
 
 def main():
-    llm = ChatOpenAI(model=MODEL, temperature=0)
+    print("--- LangChain: Chain ---")
+    print(chain.invoke({"topic": "LangChain"}))
 
-    # LangChain: דרך אחת וקצרה לבנות סוכן (גרסה 1.0)
-    agent = create_agent(
-        model=llm,
-        tools=[word_length],
-        system_prompt="You are a helpful assistant. Use tools when needed.",
-    )
+    builder = StateGraph(State)
+    builder.add_node("explain", explain)
+    builder.add_edge(START, "explain")
+    builder.add_edge("explain", END)
+    graph = builder.compile()
 
-    result = agent.invoke(
-        {"messages": [{"role": "user", "content": "How many letters are in the word 'framework'?"}]}
-    )
-    print("תשובה:", result["messages"][-1].content)
+    print("\n--- LangGraph: גרף שמריץ את אותו Chain ---")
+    print(graph.invoke({"topic": "LangGraph", "answer": ""})["answer"])
 
-    # LangGraph: מתחת לסוכן יש גרף עם Nodes. אפשר להסתכל עליו
-    print("\nסוג האובייקט:", type(agent).__name__)
-    print("Nodes בגרף של הסוכן:", list(agent.get_graph().nodes.keys()))
-
-    # LangSmith: מספיק להגדיר LANGSMITH_TRACING=true ו-LANGSMITH_API_KEY ב-.env,
-    # וכל ההרצה מופיעה באתר עם כל שלב ושלב. אין צורך לשנות את הקוד.
+    # LangSmith: מספיק להגדיר ב-.env את LANGSMITH_TRACING=true ואת LANGSMITH_API_KEY,
+    # וכל הרצה מופיעה באתר, צעד אחר צעד. אין צורך לשנות את הקוד.
     print("\nLangSmith פעיל:", os.getenv("LANGSMITH_TRACING", "false"))
 
 

@@ -14,7 +14,7 @@ MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 
 def main():
-    prompt = ChatPromptTemplate.from_template("Explain {topic} to a 10 year old in two sentences.")
+    prompt = ChatPromptTemplate.from_template("הסבר מהו {topic} לילד בן 10, בשני משפטים.")
     model = ChatOpenAI(model=MODEL, temperature=0)
     parser = StrOutputParser()
 
@@ -24,15 +24,15 @@ def main():
     print("סוג ה-Chain:", type(chain).__name__)  # RunnableSequence, וגם הוא Runnable
 
     print("\n--- invoke ---")
-    print(chain.invoke({"topic": "gravity"}))
+    print(chain.invoke({"topic": "כוח המשיכה"}))
 
     print("\n--- stream (אותו Chain, בלי שינוי) ---")
-    for chunk in chain.stream({"topic": "gravity"}):
+    for chunk in chain.stream({"topic": "כוח המשיכה"}):
         print(chunk, end="", flush=True)
     print()
 
     print("\n--- batch ---")
-    for answer in chain.batch([{"topic": "rainbows"}, {"topic": "magnets"}]):
+    for answer in chain.batch([{"topic": "קשת בענן"}, {"topic": "מגנטים"}]):
         print("*", answer)
 
 

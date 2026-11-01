@@ -17,12 +17,12 @@ def main():
     # 1. Prompt Template: תבנית עם משתנים -> הודעות
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", "You are a concise teacher."),
-            ("human", "Explain {concept} in one sentence."),
+            ("system", "אתה מורה קצר ולעניין."),
+            ("human", "הסבר במשפט אחד מהו {concept}."),
         ]
     )
-    messages = prompt.invoke({"concept": "a Runnable"})
-    print("1) Prompt הפך לקלט של הודעות:")
+    messages = prompt.invoke({"concept": "Runnable"})
+    print("1) ה-Prompt הפך להודעות:")
     print(messages, "\n")
 
     # 2. Chat Model: מקבל הודעות, מחזיר הודעת AI
@@ -37,8 +37,7 @@ def main():
 
     # Parser מסוג JSON: מקבלים מילון פייתון ולא מחרוזת
     json_prompt = ChatPromptTemplate.from_template(
-        "Return a JSON object with the keys 'name' and 'year' for the programming "
-        "language {language}. Return only JSON."
+        "החזר אובייקט JSON עם המפתחות name ו-year עבור שפת התכנות {language}. החזר JSON בלבד."
     )
     json_llm = llm.bind(response_format={"type": "json_object"})
     data = (json_prompt | json_llm | JsonOutputParser()).invoke({"language": "Python"})
